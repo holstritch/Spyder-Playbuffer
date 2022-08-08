@@ -5,6 +5,7 @@
 int DISPLAY_WIDTH = 1280;
 int DISPLAY_HEIGHT = 720;
 int DISPLAY_SCALE = 1;
+int id_fan;
 
 enum Agent8State
 {
@@ -52,7 +53,7 @@ void MainGameEntry(PLAY_IGNORE_COMMAND_LINE)
 	Play::LoadBackground("Data\\Backgrounds\\background.png");
 	Play::StartAudioLoop("music");
 	Play::CreateGameObject(TYPE_AGENT8, { 115, 0 }, 50, "agent8");
-	int id_fan = Play::CreateGameObject(TYPE_FAN, { 1140, 217 }, 0, "fan");
+	id_fan = Play::CreateGameObject(TYPE_FAN, { 1140, 217 }, 0, "fan");
 	Play::GetGameObject(id_fan).velocity = { 0, 3 };
 	Play::GetGameObject(id_fan).animSpeed = 1.0f;
 }
@@ -138,6 +139,7 @@ void UpdateFan()
 		int id = Play::CreateGameObject(TYPE_TOOL, obj_fan.pos, 50, "driver");
 		GameObject& obj_tool = Play::GetGameObject(id);
 		obj_tool.velocity = Point2f(-8, Play::RandomRollRange(-1, 1) * 6);
+		Play::DrawObject(obj_fan);
 
 		if (Play::RandomRoll(2) == 1) 
 		{
@@ -167,9 +169,8 @@ void UpdateFan()
 	if (gameState.agentState == STATE_DEAD)
 	{
 		printf("destroy fan");
-		Play::DestroyGameObjectsByType(TYPE_FAN);
+		Play::DestroyGameObject(id_fan);
 	}
-	Play::DrawObject(obj_fan);
 }
 
 void UpdateTools() 
