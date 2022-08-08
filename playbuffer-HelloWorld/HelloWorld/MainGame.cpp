@@ -163,6 +163,12 @@ void UpdateFan()
 		obj_fan.pos = obj_fan.oldPos;
 		obj_fan.velocity.y *= -1;
 	}
+
+	if (gameState.agentState == STATE_DEAD)
+	{
+		printf("destroy fan");
+		Play::DestroyGameObjectsByType(TYPE_FAN);
+	}
 	Play::DrawObject(obj_fan);
 }
 
