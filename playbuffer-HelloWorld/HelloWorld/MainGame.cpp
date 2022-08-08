@@ -48,19 +48,20 @@ void UpdateAgent8();
 // The entry point for a PlayBuffer program
 void MainGameEntry(PLAY_IGNORE_COMMAND_LINE)
 {
-	Play::CreateManager(DISPLAY_WIDTH, DISPLAY_HEIGHT, DISPLAY_SCALE);
+    Play::CreateManager(DISPLAY_WIDTH, DISPLAY_HEIGHT, DISPLAY_SCALE);
 	Play::CentreAllSpriteOrigins();
 	Play::LoadBackground("Data\\Backgrounds\\background.png");
 	Play::StartAudioLoop("music");
-	Play::CreateGameObject(TYPE_AGENT8, { 115, 0 }, 50, "agent8");
-	id_fan = Play::CreateGameObject(TYPE_FAN, { 1140, 217 }, 0, "fan");
-	Play::GetGameObject(id_fan).velocity = { 0, 3 };
-	Play::GetGameObject(id_fan).animSpeed = 1.0f;
 }
 
 // Called by PlayBuffer every frame (60 times a second!)
 bool MainGameUpdate(float elapsedTime)
 {
+	Play::CreateGameObject(TYPE_AGENT8, { 115, 0 }, 50, "agent8");
+	id_fan = Play::CreateGameObject(TYPE_FAN, { 1140, 217 }, 0, "fan");
+	Play::GetGameObject(id_fan).velocity = { 0, 3 };
+	Play::GetGameObject(id_fan).animSpeed = 1.0f;
+
 	gameState.timer += elapsedTime;
 	Play::DrawBackground();
 	UpdateAgent8();
@@ -73,14 +74,13 @@ bool MainGameUpdate(float elapsedTime)
 	Play::PresentDrawingBuffer();
 	return Play::KeyDown(VK_BACK);
 
-	Play::DrawDebugText({DISPLAY_WIDTH / 2, DISPLAY_HEIGHT / 2}, 
-	Play::GetSpriteName(gameState.spriteId), 
-	Play::cWhite);
+	Play::DrawDebugText({ DISPLAY_WIDTH / 2, DISPLAY_HEIGHT / 2 },
+		Play::GetSpriteName(gameState.spriteId),
+		Play::cWhite);
 
 	Play::DrawSprite(gameState.spriteId, Play::GetMousePos(), gameState.timer);
-
 	if (Play::KeyPressed(VK_SPACE))
-    {
+	{
 		gameState.spriteId++;
 	}
 }
@@ -139,7 +139,6 @@ void UpdateFan()
 		int id = Play::CreateGameObject(TYPE_TOOL, obj_fan.pos, 50, "driver");
 		GameObject& obj_tool = Play::GetGameObject(id);
 		obj_tool.velocity = Point2f(-8, Play::RandomRollRange(-1, 1) * 6);
-		Play::DrawObject(obj_fan);
 
 		if (Play::RandomRoll(2) == 1) 
 		{
@@ -166,11 +165,7 @@ void UpdateFan()
 		obj_fan.velocity.y *= -1;
 	}
 
-	if (gameState.agentState == STATE_DEAD)
-	{
-		printf("destroy fan");
-		Play::DestroyGameObject(id_fan);
-	}
+	Play::DrawObject(obj_fan);
 }
 
 void UpdateTools() 
@@ -182,7 +177,7 @@ void UpdateTools()
 	{
 		GameObject& obj_tool = Play::GetGameObject(id);
 
-		if (gameState.agentState != STATE_DEAD && Play::IsColliding(obj_tool, obj_agent8)) 
+		if (gameState.agentState != STATE_DEAD && Play::IsColliding(obj_tool, obj_agent8))
 		{
 			Play::StopAudioLoop("music");
 			Play::PlayAudio("die");
@@ -308,7 +303,6 @@ void UpdateLasers()
 			Play::DestroyGameObject(id_laser);
 		}
 	}
-
 }
 
 void UpdateDestroyed()
@@ -336,6 +330,7 @@ void UpdateDestroyed()
 void UpdateAgent8() 
 {
 	GameObject& obj_agent8 = Play::GetGameObjectByType(TYPE_AGENT8);
+	GameObject& obj_fan = Play::GetGameObjectByType(TYPE_FAN);
 
 	switch (gameState.agentState) 
 	{
@@ -370,9 +365,13 @@ void UpdateAgent8()
 		Play::PresentDrawingBuffer();
 		obj_agent8.acceleration = { -0.3f, 0.5f };
 		obj_agent8.rotation += 0.25f;
+		obj_fan.pos = { 1500, 217 };
+		obj_fan.animSpeed = 0;
+		obj_fan.velocity = { 0, 0 };
 		if (Play::KeyPressed(VK_RETURN) == true) 
 		{
 			gameState.agentState = STATE_APPEAR;
+			obj_fan.pos = { 1140, 217 };
 			obj_agent8.pos = { 115, 0 };
 			obj_agent8.velocity = { 0, 0 };
 			obj_agent8.frame - 0;
