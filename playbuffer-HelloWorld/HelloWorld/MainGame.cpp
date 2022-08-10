@@ -7,7 +7,7 @@ int DISPLAY_HEIGHT = 720;
 int DISPLAY_SCALE = 1;
 int id_fan;
 
-enum Agent8State
+enum class Agent8State
 {
 	STATE_APPEAR = 0,
     STATE_HALT,
@@ -20,7 +20,7 @@ struct GameState
 	int score = 0;
 	float timer = 0;
 	int spriteId = 0;
-	Agent8State agentState = STATE_APPEAR;
+	Agent8State agentState = Agent8State::STATE_APPEAR;
 };
 
 GameState gameState;
@@ -102,7 +102,7 @@ void HandlePlayerControls()
 	{
 		if (obj_agent8.velocity.y >5) 
 		{
-			gameState.agentState = STATE_HALT;
+			gameState.agentState = Agent8State::STATE_HALT;
 			Play::SetSprite(obj_agent8, "agent8_halt", 0.333f);
 			obj_agent8.acceleration = { 0,0 };
 		}
@@ -114,7 +114,7 @@ void HandlePlayerControls()
 		}
 	}
 
-	if (gameState.agentState != STATE_DEAD && Play::KeyPressed(VK_SPACE))
+	if (gameState.agentState != Agent8State::STATE_DEAD && Play::KeyPressed(VK_SPACE))
 	{
 		Vector2D firePos = obj_agent8.pos + Vector2D(155, -75);
 		int id = Play::CreateGameObject(TYPE_LASER, firePos, 30, "laser");
@@ -134,7 +134,7 @@ void HandlePlayerControls()
 void UpdateFan() 
 {
 	GameObject& obj_fan = Play::GetGameObjectByType(TYPE_FAN);
-	if (gameState.agentState != STATE_DEAD && Play::RandomRoll(50) == 50)
+	if (gameState.agentState != Agent8State::STATE_DEAD && Play::RandomRoll(50) == 50)
 	{
 		int id = Play::CreateGameObject(TYPE_TOOL, obj_fan.pos, 50, "driver");
 		GameObject& obj_tool = Play::GetGameObject(id);
@@ -150,7 +150,7 @@ void UpdateFan()
 		Play::PlayAudio("tool");
 	}
 
-	if (gameState.agentState != STATE_DEAD && Play::RandomRoll(150) == 1)
+	if (gameState.agentState != Agent8State::STATE_DEAD && Play::RandomRoll(150) == 1)
 	{
 		int id = Play::CreateGameObject(TYPE_COIN, obj_fan.pos, 40, "coin");
 		GameObject& obj_coin = Play::GetGameObject(id);
@@ -177,11 +177,11 @@ void UpdateTools()
 	{
 		GameObject& obj_tool = Play::GetGameObject(id);
 
-		if (gameState.agentState != STATE_DEAD && Play::IsColliding(obj_tool, obj_agent8))
+		if (gameState.agentState != Agent8State::STATE_DEAD && Play::IsColliding(obj_tool, obj_agent8))
 		{
 			Play::StopAudioLoop("music");
 			Play::PlayAudio("die");
-			gameState.agentState = STATE_DEAD;
+			gameState.agentState = Agent8State::STATE_DEAD;
 		}
 		Play::UpdateGameObject(obj_tool);
 
@@ -209,7 +209,7 @@ void UpdateCoinsAndStars()
 		GameObject& obj_coin = Play::GetGameObject(id_coin);
 		bool hasCollided = false;
 
-		if (gameState.agentState != STATE_DEAD && Play::IsColliding(obj_coin, obj_agent8))
+		if (gameState.agentState != Agent8State::STATE_DEAD && Play::IsColliding(obj_coin, obj_agent8))
 		{
 			for (float rad{ 0.25f }; rad < 2.0f; rad += 0.5f) 
 			{
@@ -268,7 +268,7 @@ void UpdateLasers()
 				obj_tool.type = TYPE_DESTROYED;
 				gameState.score += 100;
 			}
-			if (STATE_DEAD)
+			if (gameState.agentState == Agent8State::STATE_DEAD)
 			{
 				hasCollided = false;
 			}
@@ -284,7 +284,7 @@ void UpdateLasers()
 				Play::PlayAudio("error");
 				gameState.score -= 300;
 			}
-			if (STATE_DEAD)
+			if (gameState.agentState == Agent8State::STATE_DEAD)
 			{
 				hasCollided = false;
 			}
@@ -334,31 +334,31 @@ void UpdateAgent8()
 
 	switch (gameState.agentState) 
 	{
-	case STATE_APPEAR:
+	case Agent8State::STATE_APPEAR:
 		obj_agent8.velocity = { 0, 12 };
 		obj_agent8.acceleration = { 0, 0.5f };
 		Play::SetSprite(obj_agent8, "agent8_fall", 0);
 		obj_agent8.rotation = 0;
 		if (obj_agent8.pos.y >= DISPLAY_HEIGHT / 3) 
 		{
-			gameState.agentState = STATE_PLAY;
+			gameState.agentState = Agent8State::STATE_PLAY;
 		}
 		break;
 
-	case STATE_HALT:
+	case Agent8State::STATE_HALT:
 		obj_agent8.velocity *= 0.9f;
 		if (Play::IsAnimationComplete(obj_agent8)) 
 		{
-			gameState.agentState = STATE_PLAY;
+			gameState.agentState = Agent8State::STATE_PLAY;
 		}
 		break;
 
-	case STATE_PLAY:
+	case Agent8State::STATE_PLAY:
 		HandlePlayerControls();
 		Play::DrawFontText("64px", "ARROW KEYS TO MOVE UP AND DOWN AND SPACE TO FIRE", { DISPLAY_WIDTH / 2, DISPLAY_HEIGHT - 30 }, Play::CENTRE);
 		break;
 
-	case STATE_DEAD:
+	case Agent8State::STATE_DEAD:
 		Play::ClearDrawingBuffer(Play::cBlack);
 		Play::DrawFontText("132px", "GAME OVER", { DISPLAY_WIDTH / 2, DISPLAY_HEIGHT / 2 }, Play::CENTRE);
 		Play::DrawFontText("64px", "PRESS ENTER TO RESTART", { DISPLAY_WIDTH / 2, DISPLAY_HEIGHT - 30 }, Play::CENTRE);
@@ -370,7 +370,7 @@ void UpdateAgent8()
 		obj_fan.velocity = { 0, 0 };
 		if (Play::KeyPressed(VK_RETURN) == true) 
 		{
-			gameState.agentState = STATE_APPEAR;
+			gameState.agentState = Agent8State::STATE_APPEAR;
 			obj_fan.pos = { 1140, 217 };
 			obj_agent8.pos = { 115, 0 };
 			obj_agent8.velocity = { 0, 0 };
@@ -388,7 +388,7 @@ void UpdateAgent8()
 
 	Play::UpdateGameObject(obj_agent8);
 
-	if (Play::IsLeavingDisplayArea(obj_agent8) && gameState.agentState != STATE_DEAD) 
+	if (Play::IsLeavingDisplayArea(obj_agent8) && gameState.agentState != Agent8State::STATE_DEAD)
 	{
 		obj_agent8.pos = obj_agent8.oldPos;
 	}
