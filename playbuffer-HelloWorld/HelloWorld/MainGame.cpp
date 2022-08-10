@@ -159,7 +159,7 @@ void UpdateFan()
 	}
 	Play::UpdateGameObject(obj_fan);
 
-	if (Play::IsLeavingDisplayArea(obj_fan)) 
+	if (gameState.agentState != Agent8State::STATE_DEAD && Play::IsLeavingDisplayArea(obj_fan))
 	{
 		obj_fan.pos = obj_fan.oldPos;
 		obj_fan.velocity.y *= -1;
@@ -192,7 +192,7 @@ void UpdateTools()
 		}
 		Play::DrawObjectRotated(obj_tool);
 
-		if (!Play::IsVisible(obj_tool)) 
+		if (gameState.agentState == Agent8State::STATE_APPEAR || !Play::IsVisible(obj_tool))
 		{
 			Play::DestroyGameObject(id);
 		}
@@ -227,7 +227,7 @@ void UpdateCoinsAndStars()
 		Play::UpdateGameObject(obj_coin);
 		Play::DrawObjectRotated(obj_coin);
 
-		if (!Play::IsVisible(obj_coin) || hasCollided)
+		if (gameState.agentState == Agent8State::STATE_APPEAR || !Play::IsVisible(obj_coin) || hasCollided)
 		{
 			Play::DestroyGameObject(id_coin);
 		}
@@ -371,10 +371,12 @@ void UpdateAgent8()
 		if (Play::KeyPressed(VK_RETURN) == true) 
 		{
 			gameState.agentState = Agent8State::STATE_APPEAR;
-			obj_fan.pos = { 1140, 217 };
+			obj_fan.pos = { 1140, 217 }, 0;
+			obj_fan.velocity = { 0, 3 };
+			obj_fan.animSpeed = 1.0f;
 			obj_agent8.pos = { 115, 0 };
 			obj_agent8.velocity = { 0, 0 };
-			obj_agent8.frame - 0;
+			obj_agent8.frame = 0;
 			Play::StartAudioLoop("music");
 			gameState.score = 0;
 
