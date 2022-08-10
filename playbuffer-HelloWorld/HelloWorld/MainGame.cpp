@@ -72,7 +72,6 @@ bool MainGameUpdate(float elapsedTime)
 	UpdateDestroyed();
 	Play::DrawFontText("132px", "SCORE: " + std::to_string(gameState.score), { DISPLAY_WIDTH / 2, 50 }, Play::CENTRE);
 	Play::PresentDrawingBuffer();
-	return Play::KeyDown(VK_BACK);
 
 	Play::DrawDebugText({ DISPLAY_WIDTH / 2, DISPLAY_HEIGHT / 2 },
 		Play::GetSpriteName(gameState.spriteId),
@@ -83,6 +82,8 @@ bool MainGameUpdate(float elapsedTime)
 	{
 		gameState.spriteId++;
 	}
+
+	return Play::KeyDown(VK_ESCAPE);
 }
 
 void HandlePlayerControls()
@@ -361,7 +362,7 @@ void UpdateAgent8()
 	case Agent8State::STATE_DEAD:
 		Play::ClearDrawingBuffer(Play::cBlack);
 		Play::DrawFontText("132px", "GAME OVER", { DISPLAY_WIDTH / 2, DISPLAY_HEIGHT / 2 }, Play::CENTRE);
-		Play::DrawFontText("64px", "PRESS ENTER TO RESTART", { DISPLAY_WIDTH / 2, DISPLAY_HEIGHT - 30 }, Play::CENTRE);
+		Play::DrawFontText("64px", "PRESS ENTER TO RESTART OR ESCAPE TO EXIT", { DISPLAY_WIDTH / 2, DISPLAY_HEIGHT - 30 }, Play::CENTRE);
 		Play::PresentDrawingBuffer();
 		obj_agent8.acceleration = { -0.3f, 0.5f };
 		obj_agent8.rotation += 0.25f;
